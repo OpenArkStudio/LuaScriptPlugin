@@ -4,7 +4,7 @@ echo up DataCfg
 
 xcopy %BaseFrameDir%\Dep\*.* Dep\ /e/y
 xcopy %BaseFrameDir%\Doc\*.* Doc\  /e/y
-xcopy %BaseFrameDir%\Plugins\NFLuaScriptPlugin\*.* Plugins\NFLuaScriptPlugin\ /e/y
+xcopy %BaseFrameDir%\Frame\*.* Frame\ /e/y
 
 echo complete up 
 pause
