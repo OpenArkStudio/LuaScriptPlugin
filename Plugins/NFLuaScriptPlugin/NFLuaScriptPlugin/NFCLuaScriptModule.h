@@ -11,11 +11,11 @@
 
 #define LUAINTF_LINK_LUA_COMPILED_IN_CXX 0
 
-#include "Dependencies/LuaIntf/LuaIntf.h"
+#include "Dep/LuaIntf/LuaIntf.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 #include "NFComm/NFPluginModule/NFIClassModule.h"
-#include "NFComm/NFPluginModule/NFILuaScriptModule.h"
-#include "NFComm/NFPluginModule/NFIScriptModule.h"
+#include "Plugins/NFLuaScriptPlugin/NFInterface/NFILuaScriptModule.h"
+//#include "Plugins/NFLuaScriptPlugin/NFInterface/NFIScriptModule.h"
 
 class NFCLuaScriptModule
     : public NFILuaScriptModule
