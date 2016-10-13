@@ -122,10 +122,10 @@ bool NFCLuaScriptModule::AddPropertyCallBack(const NFGUID& self, std::string& st
 {
     if (AddLuaFuncToMap(m_luaPropertyCallBackFuncMap, self, strPropertyName, luaFunc))
     {
-        m_pKernelModule->AddPropertyCallBack(self, strPropertyName, this, &NFCLuaScriptModule::OnLuaPropertyCB);
+        return m_pKernelModule->AddPropertyCallBack(self, strPropertyName, this, &NFCLuaScriptModule::OnLuaPropertyCB);
     }
 
-    return true;
+    return false;
 }
 
 int NFCLuaScriptModule::OnLuaPropertyCB(const NFGUID& self, const std::string& strPropertyName, const NFIDataList::TData& oldVar, const NFIDataList::TData& newVar)
@@ -137,9 +137,10 @@ bool NFCLuaScriptModule::AddRecordCallBack(const NFGUID& self, std::string& strR
 {
     if (AddLuaFuncToMap(m_luaRecordCallBackFuncMap, self, strRecordName, luaFunc))
     {
-        m_pKernelModule->AddRecordCallBack(self, strRecordName, this, &NFCLuaScriptModule::OnLuaRecordCB);
+        return m_pKernelModule->AddRecordCallBack(self, strRecordName, this, &NFCLuaScriptModule::OnLuaRecordCB);
     }
-    return true;
+
+    return false;
 }
 
 int NFCLuaScriptModule::OnLuaRecordCB(const NFGUID& self, const RECORD_EVENT_DATA& xEventData, const NFIDataList::TData& oldVar, const NFIDataList::TData& newVar)
@@ -151,9 +152,10 @@ bool NFCLuaScriptModule::AddEventCallBack(const NFGUID& self, const int nEventID
 {
     if (AddLuaFuncToMap(m_luaEventCallBackFuncMap, self, (int)nEventID, luaFunc))
     {
-        m_pKernelModule->AddEventCallBack(self, nEventID, this, &NFCLuaScriptModule::OnLuaEventCB);
+        return m_pKernelModule->AddEventCallBack(self, nEventID, this, &NFCLuaScriptModule::OnLuaEventCB);
     }
-    return true;
+
+    return false;
 }
 
 int NFCLuaScriptModule::OnLuaEventCB(const NFGUID& self, const int nEventID, const NFIDataList& argVar)
@@ -165,9 +167,10 @@ bool NFCLuaScriptModule::AddHeartBeat(const NFGUID& self, std::string& strHeartB
 {
     if (AddLuaFuncToMap(m_luaHeartBeatCallBackFuncMap, self, strHeartBeatName, luaFunc))
     {
-        m_pKernelModule->AddHeartBeat(self, strHeartBeatName, this, &NFCLuaScriptModule::OnLuaHeartBeatCB, fTime, nCount);
+        return m_pKernelModule->AddHeartBeat(self, strHeartBeatName, this, &NFCLuaScriptModule::OnLuaHeartBeatCB, fTime, nCount);
     }
-    return true;
+
+    return false;
 }
 
 int NFCLuaScriptModule::OnLuaHeartBeatCB(const NFGUID& self, const std::string& strHeartBeatName, const float fTime, const int nCount)
@@ -220,7 +223,7 @@ bool NFCLuaScriptModule::AddLuaFuncToMap(NFMap<T, NFMap<NFGUID, NFList<string>>>
             return false;
         }
     }
-
+    return false;
 }
 
 template<typename T1, typename ...T2>
