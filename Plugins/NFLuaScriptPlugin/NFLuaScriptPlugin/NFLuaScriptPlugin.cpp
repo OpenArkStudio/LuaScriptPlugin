@@ -9,6 +9,7 @@
 
 #include "NFCLuaScriptModule.h"
 #include "NFLuaScriptPlugin.h"
+#include "NFCLuaScriptComponentModule.h"
 
 #ifdef NF_DYNAMIC_PLUGIN
 
@@ -39,10 +40,12 @@ const std::string NFLuaScriptPlugin::GetPluginName()
 void NFLuaScriptPlugin::Install()
 {
     REGISTER_MODULE(pPluginManager, NFILuaScriptModule, NFCLuaScriptModule)
-
+    REGISTER_MODULE(pPluginManager, NFILuaScriptComponentModule, NFCLuaScriptComponentModule)
+        
 }
 
 void NFLuaScriptPlugin::Uninstall()
 {
+    UNREGISTER_MODULE(pPluginManager, NFILuaScriptComponentModule, NFCLuaScriptComponentModule)
     UNREGISTER_MODULE(pPluginManager, NFILuaScriptModule, NFCLuaScriptModule)
 }

@@ -33,15 +33,23 @@ public:
     virtual bool AfterInit();
     virtual bool BeforeShut();
 
-    bool AddPropertyCallBack(const NFGUID& self, std::string& strPropertyName, std::string& luaFunc);
-    bool AddRecordCallBack(const NFGUID& self, std::string& strRecordName, std::string& luaFunc);
-    bool AddEventCallBack(const NFGUID& self, const int nEventID, std::string& luaFunc);
-    bool AddHeartBeat(const NFGUID& self, std::string& strHeartBeatName, std::string& luaFunc, const float fTime, const int nCount);
-    int AddRow(const NFGUID& self, std::string& strRecordName, const NFIDataList& var);
+    virtual bool AddPropertyCallBack(const NFGUID& self, std::string& strPropertyName, std::string& luaFunc);
+    virtual bool AddRecordCallBack(const NFGUID& self, std::string& strRecordName, std::string& luaFunc);
+    virtual bool AddEventCallBack(const NFGUID& self, const int nEventID, std::string& luaFunc);
+    virtual bool AddHeartBeat(const NFGUID& self, std::string& strHeartBeatName, std::string& luaFunc, const float fTime, const int nCount);
+    virtual int AddRow(const NFGUID& self, std::string& strRecordName, const NFIDataList& var);
 
-    bool AddClassCallBack(std::string& className, std::string& funcName);
+    virtual bool AddClassCallBack(const std::string& className, std::string& funcName);
+
+    virtual bool LoadScript(const std::string& strLuaFile);
+    virtual bool AddScriptPackagePath(const std::string& strLuaFile);
+    virtual bool DoLuaFunction0(const std::string& strFuncName);
+    virtual bool DoLuaClassFunction(const std::string& strFuncName, const NFGUID& self, const std::string& strClassName, const CLASS_OBJECT_EVENT eClassEvent, const NFIDataList& var);
 
 protected:
+    template<typename... T1>
+    bool DoGlobalScriptFun(const std::string& strFuncName, T1... arg);
+
     template<typename T>
     bool AddLuaFuncToMap(NFMap<T, NFMap<NFGUID, NFList<string>>>& funcMap, const NFGUID& self, T key, std::string& luaFunc);
     template<typename T1, typename... T2>
@@ -72,5 +80,7 @@ protected:
 
     NFMap<std::string, std::string> m_ClassEventFuncMap;
 };
+
+
 
 #endif

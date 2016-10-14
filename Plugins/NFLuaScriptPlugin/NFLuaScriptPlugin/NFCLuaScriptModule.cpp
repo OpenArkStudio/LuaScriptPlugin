@@ -12,14 +12,6 @@
 #include "NFComm/NFCore/NFTimer.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 
-#define TRY_RUN_GLOBAL_SCRIPT_FUN0(strFuncName)   try {LuaIntf::LuaRef func(l, strFuncName);  func.call<LuaIntf::LuaRef>(); }   catch (LuaIntf::LuaException& e) { cout << e.what() << endl; }
-#define TRY_RUN_GLOBAL_SCRIPT_FUN1(strFuncName, arg1)  try {LuaIntf::LuaRef func(l, strFuncName);  func.call<LuaIntf::LuaRef>(arg1); }catch (LuaIntf::LuaException& e) { cout << e.what() << endl; }
-#define TRY_RUN_GLOBAL_SCRIPT_FUN2(strFuncName, arg1, arg2)  try {LuaIntf::LuaRef func(l, strFuncName);  func.call<LuaIntf::LuaRef>(arg1, arg2); }catch (LuaIntf::LuaException& e) { cout << e.what() << endl; }
-
-#define TRY_LOAD_SCRIPT_FLE(strFileName)  try{l.doFile(strFileName);} catch (LuaIntf::LuaException& e) { cout << e.what() << endl; }
-#define TRY_ADD_PACKAGE_PATH(strFilePath)  try{l.addPackagePath(strFilePath);} catch (LuaIntf::LuaException& e) { cout << e.what() << endl; }
-LUA_USING_SHARED_PTR_TYPE(std::shared_ptr)
-
 bool NFCLuaScriptModule::Init()
 {
     mnTime = pPluginManager->GetNowTime();
@@ -30,30 +22,30 @@ bool NFCLuaScriptModule::Init()
 
 	Regisger();
 
-    TRY_ADD_PACKAGE_PATH(pPluginManager->GetConfigPath() + "NFDataCfg/ScriptModule"); //Add Search Path to Lua
+    AddScriptPackagePath(pPluginManager->GetConfigPath() + "NFDataCfg/ScriptModule"); //Add Search Path to Lua
 
-    TRY_LOAD_SCRIPT_FLE("script_init.lua");
+    LoadScript("script_init.lua");
 
-    TRY_RUN_GLOBAL_SCRIPT_FUN2("init_script_system", pPluginManager, this);
+    DoGlobalScriptFun("init_script_system", pPluginManager, this);
 
-    TRY_LOAD_SCRIPT_FLE("script_list.lua");
-    TRY_LOAD_SCRIPT_FLE("script_module.lua");
+    LoadScript("script_list.lua");
+    LoadScript("script_module.lua");
 
-    TRY_RUN_GLOBAL_SCRIPT_FUN0("ScriptModule.Init");
+    DoGlobalScriptFun("ScriptModule.Init");
 
     return true;
 }
 
 bool NFCLuaScriptModule::AfterInit()
 {
-    TRY_RUN_GLOBAL_SCRIPT_FUN0("ScriptModule.AfterInit");
+    DoGlobalScriptFun("ScriptModule.AfterInit");
 
     return true;
 }
 
 bool NFCLuaScriptModule::Shut()
 {
-    TRY_RUN_GLOBAL_SCRIPT_FUN0("ScriptModule.Shut");
+    DoGlobalScriptFun("ScriptModule.Shut");
 
     return true;
 }
@@ -64,8 +56,8 @@ bool NFCLuaScriptModule::Execute()
     if (pPluginManager->GetNowTime() - mnTime > 10)
     {
         mnTime = pPluginManager->GetNowTime();
-        TRY_RUN_GLOBAL_SCRIPT_FUN0("ScriptModule.Execute");
-        TRY_LOAD_SCRIPT_FLE("script_reload.lua")
+        DoGlobalScriptFun("ScriptModule.Execute");
+        LoadScript("script_reload.lua");
 
     }
 
@@ -74,12 +66,12 @@ bool NFCLuaScriptModule::Execute()
 
 bool NFCLuaScriptModule::BeforeShut()
 {
-    TRY_RUN_GLOBAL_SCRIPT_FUN0("ScriptModule.BeforeShut");
+    DoGlobalScriptFun("ScriptModule.BeforeShut");
 
     return true;
 }
 
-bool NFCLuaScriptModule::AddClassCallBack(std::string& className, std::string& funcName)
+bool NFCLuaScriptModule::AddClassCallBack(const std::string& className, std::string& funcName)
 {
     auto newFuncName = m_ClassEventFuncMap.GetElement(className);
     if (!newFuncName)
@@ -93,6 +85,75 @@ bool NFCLuaScriptModule::AddClassCallBack(std::string& className, std::string& f
     {
         return false;
     }
+}
+
+bool NFCLuaScriptModule::LoadScript(const std::string& strLuaFile)
+{
+    try 
+    { 
+        l.doFile(strLuaFile.c_str()); 
+    }
+    catch (LuaIntf::LuaException& e) 
+    { 
+        cout << e.what() << endl; 
+        return false;
+    }
+
+    return true;
+}
+
+bool NFCLuaScriptModule::AddScriptPackagePath(const std::string& strLuaFile)
+{
+    try 
+    { 
+        l.addPackagePath(strLuaFile); 
+    }
+    catch (LuaIntf::LuaException& e) 
+    { 
+        cout << e.what() << endl; 
+        return false;
+    }
+
+    return true;
+}
+
+bool NFCLuaScriptModule::DoLuaFunction0(const std::string& strFuncName)
+{
+    return DoGlobalScriptFun(strFuncName);
+}
+
+bool NFCLuaScriptModule::DoLuaClassFunction(const std::string& strFuncName, const NFGUID& self, const std::string& strClassName, const CLASS_OBJECT_EVENT eClassEvent, const NFIDataList& var)
+{
+    std::string strLuaFuncName = strFuncName;
+    try
+    {
+        LuaIntf::LuaRef func(l, strLuaFuncName.c_str());
+        func.call(self, strClassName, (int)eClassEvent, (NFCDataList)var);
+    }
+    catch (LuaIntf::LuaException& e)
+    {
+        cout << e.what() << endl;
+        return false;
+    }
+
+    return true;
+}
+
+template<typename... T1>
+bool NFCLuaScriptModule::DoGlobalScriptFun(const std::string& strFuncName, T1... arg)
+{
+    try 
+    {
+        LuaIntf::LuaRef func(l, strFuncName.c_str());  
+        func.call<LuaIntf::LuaRef>(arg...);
+    }
+    catch (LuaIntf::LuaException& e) 
+    { 
+        cout << e.what() << endl; 
+        return false;
+    }
+
+    return true;
 }
 
 int NFCLuaScriptModule::OnClassEventCB(const NFGUID& self, const std::string& strClassName, const CLASS_OBJECT_EVENT eClassEvent, const NFIDataList& var)
