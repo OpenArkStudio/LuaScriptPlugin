@@ -25,7 +25,7 @@ bool NFCLuaScriptComponentModule::Init()
 
 bool NFCLuaScriptComponentModule::AfterInit()
 {
-    m_pLuaScriptModule->AddScriptPackagePath(pPluginManager->GetConfigPath() + "NFDataCfg/ScriptComponent"); //Add Search Path to Lua
+    m_pLuaScriptModule->AddScriptPackagePath(pPluginManager->GetConfigPath() + "DataConfig/ScriptComponent"); //Add Search Path to Lua
 
     NF_SHARE_PTR<NFIClass> pClass = m_pLogicClassModule->First();
     while (pClass)
@@ -89,9 +89,9 @@ bool NFCLuaScriptComponentModule::BeforeShut()
 
 int NFCLuaScriptComponentModule::OnCheckInstallLuaObjectClassEvent(const NFGUID& self, const std::string& strClassName, const CLASS_OBJECT_EVENT eClassEvent, const NFIDataList& var)
 {
-    const std::string& strConfigID = m_pKernelModule->GetPropertyString(self, NFrame::IObject::ConfigID());
+    std::string strConfigID = m_pKernelModule->GetPropertyString(self, NFrame::IObject::ConfigID());
     const std::string& strComponent = m_pElementModule->GetPropertyString(strConfigID, "LuaScript");
-    if (CLASS_OBJECT_EVENT::COE_CREATE_NODATA == eClassEvent)
+    if (CLASS_OBJECT_EVENT::COE_CREATE_LOADDATA == eClassEvent)
     {
         if (!strComponent.empty())
         {
@@ -172,7 +172,7 @@ bool NFCLuaScriptComponentModule::UnInstallClassComponent(const std::string& str
 
 bool NFCLuaScriptComponentModule::InstallConfigIDComponent(const std::string& strID, const std::string& strCompoment)
 {
-    if (!mmConfigIDComponent.GetElement(strID))
+    if (mmConfigIDComponent.GetElement(strID))
     {
         return false;
     }

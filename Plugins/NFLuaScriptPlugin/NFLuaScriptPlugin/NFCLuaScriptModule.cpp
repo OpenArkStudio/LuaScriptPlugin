@@ -22,7 +22,7 @@ bool NFCLuaScriptModule::Init()
 
 	Regisger();
 
-    AddScriptPackagePath(pPluginManager->GetConfigPath() + "NFDataCfg/ScriptModule"); //Add Search Path to Lua
+    AddScriptPackagePath(pPluginManager->GetConfigPath() + "DataConfig/ScriptModule"); //Add Search Path to Lua
 
     LoadScript("script_init.lua");
 
